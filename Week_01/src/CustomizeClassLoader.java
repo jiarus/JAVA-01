@@ -31,7 +31,8 @@ public class CustomizeClassLoader extends ClassLoader {
             while ((len = inputStream.read(buf)) > 0) {
                 byte[] decodeBuf = new byte[2048];
                 for (int i = 0; i < buf.length; i++) {
-                    decodeBuf[i] = (byte) (255 - buf[i]);
+                    //取反等价于255-buf[i]
+                    decodeBuf[i] = (byte) (~buf[i]);
                 }
                 os.write(decodeBuf, 0, len);
                 os.flush();
@@ -52,6 +53,22 @@ public class CustomizeClassLoader extends ClassLoader {
                 e.printStackTrace();
             }
         }
+        //print hex string
+        String hex = bytesToHex(os.toByteArray());
+        System.out.println(hex);
         return defineClass("Hello", os.toByteArray(), 0, os.size());
+    }
+    
+    
+    public static String bytesToHex(byte[] bytes) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(bytes[i] & 0xFF);
+            if (hex.length() < 2) {
+                sb.append(0);
+            }
+            sb.append(hex);
+        }
+        return sb.toString();
     }
 }
