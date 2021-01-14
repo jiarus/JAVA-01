@@ -1,0 +1,170 @@
+##第一课笔记
+一、JVM（3节课）
+* JVM基础
+* Java字节码技术
+    *  .java -> .class(字节码) -> 类加载器 -> 对象实例
+        * 字节码理论支持256个操作码，实际只使用200个左右
+            * 16进制范围：0x00~0xFF 0x(前缀)+(0~9+A~F) 16*16 = 256个字节
+            1. 指令类型：栈操作指令（JVM基于栈的一种虚拟机）；流程控制指令；对象操作指令；算数运算、类型转换指令；
+        * 查看字节码文件
+            1. javap -c .class （助记符）
+            2. javap -c -verbose  （详细信息：文件时间、校验和、java版本、行号、类修饰符、常量池、行号）
+            3. 使用javac -g 编译后，可以查看本地变量表（局部变量区）
+            4. 助记符前缀表明类型（a:操作对象的引用、i:常量、d:double等）
+            5. 算数操作与类型转换(jvm只定义了4种:int、long、float、double，最小类型int，简单粗暴、简化操作符数目)
+            6. 循环流程控制(if_icmge:int类型compare大于等于,iinc:int类型increment, goto:跳转到)
+            7. 方法调用(invokestatic调用静态方法、invokespecial调用构造、invokevirtual调用公共或受保护方法、invokeinterface调用接口、invokedynamic jdk7为了让指针指向不同类型的对象增加的指令，也是jdk8 lambda表达式的实现基础)
+            * iconst_0 ~iconst_5 因为常用所以简化为一个字节节省空间，大于5需要用俩个字节表示
+* JVM类加载器*
+    * 添加引用类的几种方法
+        * 放到JDK的lib/ext下，或者-Djava.ext.dirs（使用扩展类加载器加载）
+        * java -cp（-classpath） 或者class文件放到当前路径
+        * 自定义类加载器（因为应用类加载器-扩展类加载器 父级是URL加载器，继承了ClassLoader类，覆盖findClass，然后将字节码传给defineClass方法（jdk9之前，之后三者平级了，直接Class.forName(“xxx”,new UrlClassLoader(“/path”))））
+        * 拿到当前执行类的ClassLoader，反射调用addUrl方法添加Jar或路径
+* JVM内存模型*
+* JVM启动参数
+    * 系统属性参数
+        * -server标准参数（所有的虚拟机都要实现）
+        * -D 设置系统环境变量，针对当前进程 System.getProperty(“a”)
+        * -X 非标准参数
+            * -Xmixed 混合模式，自动选择-Xint(强行解释所有字节码)/-Xcomp(本地化代码) ，就是JIT的原理，自动将多次调用的类本地化，提高执行效率
+        * -XX 非稳定参数
+    * 运行模式参数
+    * 堆内存设置参数
+        * -Xmx 最大堆内存（最佳实践，系统内存的60～80%，大内存机器例外可以调大）
+        * -Xms 初始内存大小（并不是系统实际分配的内存，而是使用到才分配。专用服务器要保持-Xmx和-Xms大小一样，否则堆内存扩容可能导致性能抖动）
+            * ？需要再理解下
+        * -Xmn 等价于-XX:NewSize ,设置年轻带的大小，G1垃圾回收器不需要设置该参数（最佳实践，-Xmx的1/2～1/4）
+        * -XX:MaxPermSize 1.7之前的参数，之后Meta空间无限大，参数无效
+        * -XX:MaxDirectMemorySize 最大对外内存
+        * -Xss 每个线程栈的字节数 = XX:ThreadStackSize
+    * GC设置参数
+        * 下节课
+    * 分析诊断参数
+        * -XX:+-HeapDumpOnOutOfMemoryError，当堆内存溢出时，自动dump堆内存。（-XX:+-HeapDumpOnOutOfMemoryError -Xmx256m ConsumeHeap -XX:HeapDumpPath=/usr/local/dump）
+        * -XX:OnError=“gdb -%p” MyApp 启动gdb的时候，通过参数-p指定目标进程就可以进入调试状态
+        * -XX:OnOutOfMemoryError
+        * -XX:ErrorFile=filename
+        * -Xdebug-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1506，远程调试
+    * JavaAgent参数(注入AOP代码，执行统计)
+
+##第2课笔记
+
+一、JVM命令行工具
+jps	-l 输出包名
+-m 输出main method的参数
+-v 输出jvm参数
+jstat	jstat -options
+-class 类加载信息统计
+-compiler JIT即时编译相关统计信息
+-gc GC相关堆信息
+-gccapacity 各个内存池分 代空间最小/大/当前容量
+-gccause 看上次 GC, 本次 GC(如果正在 GC中)的原因, 其他 输出和 -gcutil 选项一致。
+-gcmetacapacity meta区gc信息
+-gcnew 年轻代gc信息
+-gcnewcapacity 年轻代容量+gc信息
+-gcold 年轻代gc信息
+-gcoldcapacity 老年代容量+gc信息
+-gcutil gc相关区域使用百分比，gc统计（比较简洁）
+-printcompilation  输出JIT编译的方法信息
+jmap	-heap 打印堆内存配置和使用信息
+-histo 直方图形式查看类占用空间
+-dump:live,format=b,file=xxxx.hprof 导出堆中存活对象信息到文件,可以使用jvisualvm导入查看
+jstack	-F 强制执行 thread dump. 可在 Java 进程卡死
+(hung 住)时使用, 此选项可能需要系统权限。 -m 混合模式(mixed mode),将 Java 帧和 native
+帧一起输出, 此选项可能需要系统权限。
+-l 长列表模式. 将线程相关的 locks 信息一起输出，比如持有的锁，等待的锁。
+jcmd	Jcmd 综合了前面的几个命令
+jcmd pid VM.version
+jcmd pid VM.flags
+jcmd pid VM.command_line jcmd pid VM.system_properties jcmd pid Thread.print
+jcmd pid GC.class_histogram jcmd pid GC.heap_info
+jrunscript/jjs	当curl命令用:
+jrunscript -e "cat('http://www.baidu.com')" 执行js脚本片段
+jrunscript -e "print('hello,kk.jvm'+1)" 执行js文件
+jrunscript -l js -f /XXX/XXX/test.js
+二、JVM图形化工具
+jconsole	jdk内置
+jvisualvm	netBeans的profile子项目
+visualGC	Idea图形插件
+jmc（jdk mission control）	Todo
+三、GC原理
+* 引用计数
+    * 问题：循环引用解决（GC Roots）
+        * 可作为GC Roots的对象：
+            1. 当前正在执行的方法里的局部变量和输入参数
+            2. 活动线程
+            3. 所有类的静态字段
+            4. JNI引用
+
+* 垃圾回收策略
+    * 清除算法（标记-清除）
+        * 原理：遍历所有可达对象，在本地内存中分门别类记下。清除不可达对象所占内存，之后可以在内存分配时重用。
+    * 复制算法（标记-复制）
+        * 原理：只在年轻代使用，遍历所有可达对象，复制对象到存活区
+        * 参数：-XX:+MaxTenuringThreshold=15 ，存活区复制次数
+    * 整理算法（标记-清除-整理）
+        * 原理：通过标志位(marked bit),标记所有通过 GC roots 可达的对象。删除所有不可达对象 ，整理老年代空间中的内容，方法是将所有的存活对象移动,从老年代空间开始的地方,依次存放
+四、GC实现
+￼
+	常用的组合为:
+    * Serial+Serial Old 实现单线程的低延迟垃圾回收机制; (针对单CPU)
+        * XX:+UseSerialGC
+    * ParNew+CMS，实现多线程的低延迟垃圾回收机制，年轻代并行收集，老年代并发收集; （多CPU，对响应速度敏感）
+        * -XX:+UseParNewGC
+        * -XX:+UseConcMarkSweepGC
+    * Parallel Scavenge和Parallel Scavenge Old，年轻代和老年代都使用并行收集器，实现多线程的高吞吐量垃圾 回收机制; (对响应速度不敏感，吞吐量大的)
+        * -XX:+UseParallelGC
+        * -XX:+UseParallelOldGC
+    * G1 Garbage-First，意为垃圾优先
+        * ‐XX:+UseG1GC
+        * -XX:G1NewSizePercent:初始年轻代占整个 Java Heap 的大小，默认值为 5%;
+        * -XX:G1MaxNewSizePercent:最大年轻代占整个 Java Heap 的大小，默认值为 60%
+        * -XX:G1HeapRegionSize:设置每个 Region 的大小，单位 MB，需要为 1，2，4，8，16，32 中的某个值，默 认是堆内存的 1/2000
+        * -XX:ConcGCThreads:与 Java 应用一起执行的 GC 线程数量，默认是 Java 线程的 1/4
+        * -XX:+InitiatingHeapOccupancyPercent(简称 IHOP) G1 内部并行回收循环启动的阈值，默认为 Java Heap 的 45%。这个可以理解为老年代使用大于等于 45% 的时候，JVM 会启动垃圾回收。这个值非常重要，它决定了在 什么时间启动老年代的并行回收
+        * -XX:G1HeapWastePercent:G1停止回收的最小内存大小，默认是堆大小的 5%。GC 会收集所有的 Region 中 的对象，但是如果下降到了 5%，就会停下来不再收集了。就是说，不必每次回收就把所有的垃圾都处理完，可以 遗留少量的下次处理，这样也降低了单次消耗的时间。
+        * -XX:+GCTimeRatio:这个参数就是计算花在 Java 应用线程上和花在 GC 线程上的时间比率，默认是 9，跟新生代内存的分 配比例一致。这个参数主要的目的是让用户可以控制花在应用上的时间，G1 的计算公式是 100/(1+GCTimeRatio)。这样 如果参数设置为 9，则最多 10% 的时间会花在 GC 工作上面
+        * -XX:MaxGCPauseMills:预期 G1 每次执行 GC 操作的暂停时间，单位是毫秒，默认值是 200 毫秒，G1 会尽量保证控制在 这个范围内。
+
+
+* CMS GC 6个阶段
+
+1.Initial Mark(初始标记)	STW后，初始标记所有根对象+根对象直接引用的对象+被年轻代引用的对象
+2.Concurrent Mark(并发标记)	在老年代遍历Initial Mark中的关联对象，并发标记就是在应用程序运行的同时进行，不用STW
+3.Concurrent Preclean(并发预处理)	标记“脏”卡（card Marking），记录引用发生变化的对象
+4.Final Remark(最终标记)	需要STW，CMS尽量在年轻代空的时候执行Final Remark，最终确定存活对象
+5.Concurrent Sweep(并发清除)	不需要STW，删除未被标记的对象，收回他们占用的空间
+6.Concurrent Rest(并发重置)	重置CMS算法相关的内部数据，为下一次GC循环做准备
+只有在第1、4步需要STW
+CMS 垃圾收集器在减少停顿时间上做了很多复 杂而有用的工作，用于垃圾回收的并发线程执 行的同时，并不需要暂停应用线程。 当然， CMS 也有一些缺点，其中最大的问题就是老年 代内存碎片问题(因为不压缩)，在某些情况 下 GC 会造成不可预测的暂停时间，特别是堆内存较大的情况下。
+* G1 GC
+    * 堆不再是连续的年轻代，老年代。而是划分为多个（通常是2048个）可以存放对象的小块堆区域（smaller heap regions）。每个小块都可以能被定义为Eden、survivor区或old区。
+    * 每次处理的小堆区被称为回收集（Collection Set），G1会估算每个小堆区存活的对象总数，来构建回收集。原则：垃圾最多的小堆区会被优先收集。
+    * G1的设计目标是对STW停顿时间可预期以及可配置。
+* G1 GC处理步骤
+    * 年轻代模式转移暂停(Evacuation Pause)
+    * 并发标记(Concurrent Marking) 建立在CMS基础上，逻辑基本相同
+    * 转移暂停: 混合模式(Evacuation Pause (mixed))
+* ZGC
+    * ZGC是从JDK11中引入的一种新的支持弹性伸缩和低延迟垃圾收集器，通过着色指针和读屏障，实现几乎全部的并发执行，几毫秒级别的延迟，线性可扩展;
+    * 美团实践：https://tech.meituan.com/2020/08/06/new-zgc-practice-in-meituan.html
+    * 启用参数：-XX:+UnlockExperimentalVMOptions -XX:+UseZGC -Xmx16g
+    * 特点 ：
+        * GC最大停顿时间不超过10ms
+        * 堆内存支持范围广，小至几百MB的堆空间，大至4TB的超大堆 内存(JDK13 升至 16TB)
+        * 与G1相比，应用吞吐量下降不超过15%
+        * 当前JDK11只支持Linux/x64位平台，JDK15后支持MacOS和 Windows 系统
+* ShennandoahGC
+    * G1 的改进版本，跟 ZGC 类似
+    * 启用参数：-XX:+UnlockExperimentalVMOptions - XX:+UseShenandoahGC -Xmx16g
+* Epsilon: 实验性的 GC，供性能分析使用
+五、GC如何选择
+* 一般性的指导原则:
+    * 如果系统考虑吞吐优先，CPU 资源都用来最大程度处理业务，用 Parallel GC
+    * 如果系统考虑低延迟有限，每次 GC 时间尽量短，用 CMS GC;
+    * 如果系统内存堆较大，同时希望整体来看平均 GC 时间可控，使用 G1 GC。
+* 对于内存大小的考量:
+    * 一般 4G 以上，算是比较大，用 G1 的性价比较高。
+    * 一般超过 8G，比如 16G-64G 内存，非常推荐使用 G1 GC。
+    * 大于16G，甚至64G、128G对延迟非常敏感的场景需要考虑使用ZGC/ShennandoahGC

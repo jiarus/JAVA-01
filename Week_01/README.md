@@ -1,5 +1,5 @@
-1(可选)、自己写一个简单的 Hello.java，里面需要涉及基本类型，四则运行，if 和
-for，然后自己分析一下对应的字节码，有问题群里讨论。
+第 1 节课作业实践
+1(可选)、自己写一个简单的 Hello.java，里面需要涉及基本类型，四则运行，if 和for，然后自己分析一下对应的字节码，有问题群里讨论。
 
 [HelloByteCode.java](src/HelloByteCode.java)
 
@@ -12,55 +12,147 @@ for，然后自己分析一下对应的字节码，有问题群里讨论。
 ![](src/jvm内存结构.jpg)
 
 4(可选)、检查一下自己维护的业务系统的 JVM 参数配置，用 jstat 和 jstack、jmap 查看一下详情，并且自己独立分析一下大概情况，思考有没有不合理的地方，如何改进。
+对本地某项目压测：wrk -t20 -c200 -d30s --latency  "http://localhost:9036/xxx"
+jstat -gcutil 13425 1000 100
+  S0     S1     E      O      M     CCS    YGC     YGCT    FGC    FGCT    CGC    CGCT     GCT
+  0.00  23.13  45.24  62.93  94.32  92.98     19    1.237     3    0.332     -        -    1.569
+  0.00  23.13  58.95  62.93  94.32  92.98     19    1.237     3    0.332     -        -    1.569
+  0.00  23.13  78.18  62.93  94.32  92.98     19    1.237     3    0.332     -        -    1.569
+  0.00  23.13  94.11  62.93  94.32  92.98     19    1.237     3    0.332     -        -    1.569
+ 39.33   0.00  12.22  62.94  94.32  92.98     20    1.275     3    0.332     -        -    1.607
+ 39.33   0.00  26.68  62.94  94.32  92.98     20    1.275     3    0.332     -        -    1.607
+ 39.33   0.00  43.44  62.94  94.32  92.98     20    1.275     3    0.332     -        -    1.607
+ 39.33   0.00  61.16  62.94  94.32  92.98     20    1.275     3    0.332     -        -    1.607
+ 39.33   0.00  77.84  62.94  94.32  92.98     20    1.275     3    0.332     -        -    1.607
+ 39.33   0.00  93.81  62.94  94.32  92.98     20    1.275     3    0.332     -        -    1.607
+  0.00  36.04   6.99  62.94  94.32  92.98     21    1.354     3    0.332     -        -    1.686
+  0.00  36.04  25.50  62.94  94.32  92.98     21    1.354     3    0.332     -        -    1.686
+  0.00  36.04  46.23  62.94  94.32  92.98     21    1.354     3    0.332     -        -    1.686
+  0.00  36.04  67.31  62.94  94.32  92.98     21    1.354     3    0.332     -        -    1.686
 
-##第一课笔记
-一、JVM（3节课）
-* JVM基础
-* Java字节码技术
-    *  .java -> .class(字节码) -> 类加载器 -> 对象实例
-        * 字节码理论支持256个操作码，实际只使用200个左右 
-            * 16进制范围：0x00~0xFF 0x(前缀)+(0~9+A~F) 16*16 = 256个字节
-            1. 指令类型：栈操作指令（JVM基于栈的一种虚拟机）；流程控制指令；对象操作指令；算数运算、类型转换指令；
-        * 查看字节码文件
-            1. javap -c .class （助记符）
-            2. javap -c -verbose  （详细信息：文件时间、校验和、java版本、行号、类修饰符、常量池、行号）
-            3. 使用javac -g 编译后，可以查看本地变量表（局部变量区）
-            4. 助记符前缀表明类型（a:操作对象的引用、i:常量、d:double等）
-            5. 算数操作与类型转换(jvm只定义了4种:int、long、float、double，最小类型int，简单粗暴、简化操作符数目)
-            6. 循环流程控制(if_icmge:int类型compare大于等于,iinc:int类型increment, goto:跳转到)
-            7. 方法调用(invokestatic调用静态方法、invokespecial调用构造、invokevirtual调用公共或受保护方法、invokeinterface调用接口、invokedynamic jdk7为了让指针指向不同类型的对象增加的指令，也是jdk8 lambda表达式的实现基础)
-            * iconst_0 ~iconst_5 因为常用所以简化为一个字节节省空间，大于5需要用俩个字节表示
-* JVM类加载器*
-    * 添加引用类的几种方法
-        * 放到JDK的lib/ext下，或者-Djava.ext.dirs（使用扩展类加载器加载）
-        * java -cp（-classpath） 或者class文件放到当前路径
-        * 自定义类加载器（因为应用类加载器-扩展类加载器 父级是URL加载器，继承了ClassLoader类，覆盖findClass，然后将字节码传给defineClass方法（jdk9之前，之后三者平级了，直接Class.forName(“xxx”,new UrlClassLoader(“/path”))））
-        * 拿到当前执行类的ClassLoader，反射调用addUrl方法添加Jar或路径
-* JVM内存模型*
-* JVM启动参数
-    * 系统属性参数
-        * -server标准参数（所有的虚拟机都要实现）
-        * -D 设置系统环境变量，针对当前进程 System.getProperty(“a”)
-        * -X 非标准参数 
-            * -Xmixed 混合模式，自动选择-Xint(强行解释所有字节码)/-Xcomp(本地化代码) ，就是JIT的原理，自动将多次调用的类本地化，提高执行效率
-        * -XX 非稳定参数
-    * 运行模式参数
-    * 堆内存设置参数
-        * -Xmx 最大堆内存（最佳实践，系统内存的60～80%，大内存机器例外可以调大）
-        * -Xms 初始内存大小（并不是系统实际分配的内存，而是使用到才分配。专用服务器要保持-Xmx和-Xms大小一样，否则堆内存扩容可能导致性能抖动）
-            * ？需要再理解下
-        * -Xmn 等价于-XX:NewSize ,设置年轻带的大小，G1垃圾回收器不需要设置该参数（最佳实践，-Xmx的1/2～1/4）
-        * -XX:MaxPermSize 1.7之前的参数，之后Meta空间无限大，参数无效
-        * -XX:MaxDirectMemorySize 最大对外内存
-        * -Xss 每个线程栈的字节数 = XX:ThreadStackSize
-    * GC设置参数
-        * 下节课
-    * 分析诊断参数
-        * -XX:+-HeapDumpOnOutOfMemoryError，当堆内存溢出时，自动dump堆内存。（-XX:+-HeapDumpOnOutOfMemoryError -Xmx256m ConsumeHeap -XX:HeapDumpPath=/usr/local/dump）
-        * -XX:OnError=“gdb -%p” MyApp 启动gdb的时候，通过参数-p指定目标进程就可以进入调试状态
-        * -XX:OnOutOfMemoryError
-        * -XX:ErrorFile=filename
-        * -Xdebug-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=1506，远程调试
-    * JavaAgent参数(注入AOP代码，执行统计)
+对象创建都是在Eden和survivor区轮转，基本没有进入到old区
+
+jmap -heap 13425
+Attaching to process ID 13425, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.191-b12
+
+using thread-local object allocation.
+Parallel GC with 4 thread(s)    (使用并行GC收集器，4个GC线程)
+
+Heap Configuration:
+   MinHeapFreeRatio         = 0
+   MaxHeapFreeRatio         = 100
+   MaxHeapSize              = 2099249152 (2002.0MB)(最大堆内存=8G/4)
+   NewSize                  = 44040192 (42.0MB)
+   MaxNewSize               = 699400192 (667.0MB)(年轻代最大内存=2002.0MB/3)
+   OldSize                  = 88080384 (84.0MB)
+   NewRatio                 = 2
+   SurvivorRatio            = 8
+   MetaspaceSize            = 21807104 (20.796875MB)
+   CompressedClassSpaceSize = 1073741824 (1024.0MB)
+   MaxMetaspaceSize         = 17592186044415 MB
+   G1HeapRegionSize         = 0 (0.0MB)
+
+Heap Usage:
+PS Young Generation (年轻代，因为默认有自适应，区容量会动态变化)
+Eden Space:（伊甸区）
+   capacity = 371195904 (354.0MB)
+   used     = 107731984 (102.74122619628906MB)
+   free     = 263463920 (251.25877380371094MB)
+   29.022945253189% used
+From Space:（survivor0）
+   capacity = 11010048 (10.5MB)
+   used     = 11005792 (10.495941162109375MB)
+   free     = 4256 (0.004058837890625MB)
+   99.96134440104167% used
+To Space:（survivor1）
+   capacity = 17825792 (17.0MB)
+   used     = 0 (0.0MB)
+   free     = 17825792 (17.0MB)
+   0.0% used
+PS Old Generation
+   capacity = 192413696 (183.5MB)
+   used     = 56170336 (53.568206787109375MB)
+   free     = 136243360 (129.93179321289062MB)
+   29.192483262729905% used
+
+47470 interned Strings occupying 4855000 bytes.
+
+jstack 13425
+可以看到有限时等待任务（TIMED_WAITING），因为lettuce客户端异步查询redis
+"http-nio-9042-exec-41" #194 daemon prio=5 os_prio=31 tid=0x00007ff9478bc000 nid=0x12803 waiting on condition [0x00007000119de000]
+   java.lang.Thread.State: TIMED_WAITING (parking)
+	at sun.misc.Unsafe.park(Native Method)
+	- parking to wait for  <0x0000000796879670> (a java.util.concurrent.CompletableFuture$Signaller)
+	at java.util.concurrent.locks.LockSupport.parkNanos(LockSupport.java:215)
+	at java.util.concurrent.CompletableFuture$Signaller.block(CompletableFuture.java:1695)
+	at java.util.concurrent.ForkJoinPool.managedBlock(ForkJoinPool.java:3323)
+	at java.util.concurrent.CompletableFuture.timedGet(CompletableFuture.java:1775)
+	at java.util.concurrent.CompletableFuture.get(CompletableFuture.java:1915)
+	at io.lettuce.core.protocol.AsyncCommand.await(AsyncCommand.java:83)
+	at io.lettuce.core.LettuceFutures.awaitOrCancel(LettuceFutures.java:112)
+	at io.lettuce.core.FutureSyncInvocationHandler.handleInvocation(FutureSyncInvocationHandler.java:69)
+	at io.lettuce.core.internal.AbstractInvocationHandler.invoke(AbstractInvocationHandler.java:80)
+	at com.sun.proxy.$Proxy302.get(Unknown Source)
+	at org.springframework.data.redis.connection.lettuce.LettuceStringCommands.get(LettuceStringCommands.java:66)
+
+第 2 节课作业实践
+1、本机使用 G1 GC 启动一个程序，仿照课上案例分析一下 JVM 情况
+java -jar gateway-server-0.0.1-SNAPSHOT.jar -XX+UseG1GC
+
+jmap -heap 17942
+Attaching to process ID 17942, please wait...
+Debugger attached successfully.
+Server compiler detected.
+JVM version is 25.191-b12
+
+using thread-local object allocation.
+Garbage-First (G1) GC with 4 thread(s) (使用G1垃圾回收器，4个GC线程)
+
+Heap Configuration:
+   MinHeapFreeRatio         = 40 （空闲堆最小百分比）
+   MaxHeapFreeRatio         = 70 （空闲堆最大百分比）
+   MaxHeapSize              = 2099249152 (2002.0MB)（堆总大小）
+   NewSize                  = 1363144 (1.2999954223632812MB)（年轻代大小）
+   MaxNewSize               = 1259339776 (1201.0MB)（年轻代最大大小）
+   OldSize                  = 5452592 (5.1999969482421875MB)（老年代最小值）
+   NewRatio                 = 2
+   SurvivorRatio            = 8
+   MetaspaceSize            = 21807104 (20.796875MB)
+   CompressedClassSpaceSize = 1073741824 (1024.0MB)
+   MaxMetaspaceSize         = 17592186044415 MB
+   G1HeapRegionSize         = 1048576 (1.0MB)（每个Region大小）
+
+Heap Usage:
+G1 Heap:
+   regions  = 2002  (region数量)
+   capacity = 2099249152 (2002.0MB)
+   used     = 83362288 (79.50047302246094MB)
+   free     = 2015886864 (1922.499526977539MB)
+   3.971052598524522% used
+G1 Young Generation:
+Eden Space:
+   regions  = 54    (年轻代Region数量)
+   capacity = 76546048 (73.0MB)
+   used     = 56623104 (54.0MB)
+   free     = 19922944 (19.0MB)
+   73.97260273972603% used
+Survivor Space:
+   regions  = 6 
+   capacity = 6291456 (6.0MB)
+   used     = 6291456 (6.0MB)
+   free     = 0 (0.0MB)
+   100.0% used
+G1 Old Generation:
+   regions  = 20
+   capacity = 49283072 (47.0MB)
+   used     = 20447728 (19.500473022460938MB)
+   free     = 28835344 (27.499526977539062MB)
+   41.49036813289561% used
+
+16032 interned Strings occupying 2155968 bytes.
 
 
+### link:[课堂笔记 ](src/课堂笔记.txt)

@@ -16,6 +16,7 @@ public class CustomizeClassLoader extends ClassLoader {
         Object object = clazz.newInstance();
         Method method = clazz.getMethod("hello");
         method.invoke(object);
+        System.out.println(bytesToHex(new byte[]{63,61}));
     }
     
     @Override
@@ -71,4 +72,6 @@ public class CustomizeClassLoader extends ClassLoader {
         }
         return sb.toString();
     }
+    
+   
 }
