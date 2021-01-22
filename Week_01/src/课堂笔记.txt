@@ -109,7 +109,7 @@ jmc（jdk mission control）	Todo
 ￼
 	常用的组合为:
     * Serial+Serial Old 实现单线程的低延迟垃圾回收机制; (针对单CPU)
-        * XX:+UseSerialGC
+        * -XX:+UseSerialGC
     * ParNew+CMS，实现多线程的低延迟垃圾回收机制，年轻代并行收集，老年代并发收集; （多CPU，对响应速度敏感）
         * -XX:+UseParNewGC
         * -XX:+UseConcMarkSweepGC
