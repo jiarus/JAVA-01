@@ -1,7 +1,7 @@
-###第 3 节课作业实践
-1、使用 GCLogAnalysis.java 自己演练一遍串行/并行/CMS/G1的案例。
+### 第 3 节课作业实践 
+>1、使用 GCLogAnalysis.java 自己演练一遍串行/并行/CMS/G1的案例。
 不同类型GC日志分析
-####1、串行垃圾收集器
+##### 1、串行垃圾收集器 
 执行命令：
 ```
 java -XX:+UseSerialGC -XX:+PrintGCDetails -Xmx128m -Xms128m -Xmn1m -XX:-UseAdaptiveSizePolicy GCLogAnalysis 
@@ -22,7 +22,7 @@ java -XX:+UseSerialGC -XX:+PrintGCDetails -Xmx128m -Xms128m -Xmn1m -XX:-UseAdapt
 这段表示是发生了FullGC,[Tenured: 129623K->106361K(130048K), 0.1092355 secs]  ,老年代GC前从129623K->106361K,堆从130539K->106361K
 
 ```
-####2、并行垃圾收集器
+##### 2、并行垃圾收集器  
 执行命令：
 ```
  java -XX:+PrintGCDetails -XX:+UseParallelOldGC -XX:+UseParallelGC -XX:+UseParallelOldGC -Xmx128m -Xms128m -Xmn1m -XX:-UseAdaptiveSizePolicy GCLogAnalysis  
@@ -37,7 +37,7 @@ java -XX:+UseSerialGC -XX:+PrintGCDetails -Xmx128m -Xms128m -Xmn1m -XX:-UseAdapt
 [Metaspace: 2571K->2571K(1056768K)], 0.0201966 secs] [Times: user=0.03 sys=0.01, real=0.02 secs]
 发生了一次FullGC,年轻代705K->0K，老年代129029K->65712K,可以看到FullGC前，堆内存只剩下130560K-128858K = 1702k
 ```
-####3、CMS GC
+##### 3、CMS GC
 执行命令：
 ```
 java -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -Xmx128m -Xms128m -Xmn1m -XX:-UseAdaptiveSizePolicy GCLogAnalysis 
@@ -79,7 +79,7 @@ java -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+PrintGCDetails -Xmx128m -Xms1
 
 第六阶段：并发重置  
 ``` 
-####4、G1
+##### 4、G1
 执行命令：
 ```
 java -XX:+PrintGCDetails -Xmx128m -Xms128m -Xmn1m -XX:-UseAdaptiveSizePolicy GCLogAnalysis ‐XX:+UseG1GC 
@@ -154,7 +154,7 @@ FullGC
 
 G1存在以上4中垃圾收集的情况
 ```
-2、使用压测工具(wrk或sb)，演练gateway-server-0.0.1-SNAPSHOT.jar示例。  
+>2、使用压测工具(wrk或sb)，演练gateway-server-0.0.1-SNAPSHOT.jar示例。  
 
 本地配置： 
 
@@ -216,9 +216,9 @@ Transfer/sec:      2.41MB
     
     * 并发数受限于服务器内存，理论上增加服务器堆内存会降低GC的发生，或使用并发GC/CMS GC，会提高响应效率，提高QPS。
 
-3、(选做)如果自己本地有可以运行的项目，可以按照2的方式进行演练。 
+>3、(选做)如果自己本地有可以运行的项目，可以按照2的方式进行演练。 
 
-4.（必做） 根据上述自己对于 1 和 2 的演示，写一段对于不同 GC 的总结，提交到 Github。
+>4.（必做） 根据上述自己对于 1 和 2 的演示，写一段对于不同 GC 的总结，提交到 Github。
 
     * 串行垃圾收集器：GC时会暂停所有服务，使用单线程收集垃圾，通常在并发收集发生Concurrent Mode Failure时使用Serial Old收集器。 
     
@@ -235,9 +235,9 @@ Transfer/sec:      2.41MB
         3.年轻代空间比例不要太小，防止对象过快进入老年代。
 
 ###第 3 节课作业实践
-1.（选做）运行课上的例子，以及 Netty 的例子，分析相关现象。 
+>1.（选做）运行课上的例子，以及 Netty 的例子，分析相关现象。 
 
-2.（必做）写一段代码，使用 HttpClient 或 OkHttp 访问 http://localhost:8801 ，代码提交到 Github。  
+>2.（必做）写一段代码，使用 HttpClient 或 OkHttp 访问 http://localhost:8801 ，代码提交到 Github。  
 
  [MyHttpClient.java](src/main/java/demo/MyHttpClient.java) 
  
