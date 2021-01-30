@@ -12,15 +12,18 @@
 
 1)周三作业:(必做)整合你上次作业的httpclient/okhttp; 
 
-[HttpInboundServer](src/main/java/io/github/jiarus/server/inbound/HttpInboundServer.java)
+[HttpInboundServer](nio02/src/main/java/io/github/jiarus/server/inbound/HttpInboundServer.java)
 
 2)周三作业(可选):使用netty实现后端http访问(代替上一步骤); 
 
-[HttpInboundClient](src/main/java/io/github/jiarus/client/inbound/HttpInboundHandler.java)
+[HttpInboundClient](nio02/src/main/java/io/github/jiarus/client/inbound/HttpInboundHandler.java)
 
 3)周日作业:(必做)实现过滤器 ~
-[HeaderHttpRequestFilter](src/main/java/io/github/jiarus/server/filter/HeaderHttpRequestFilter.java)
+
+[HeaderHttpRequestFilter](nio02/src/main/java/io/github/jiarus/server/filter/HeaderHttpRequestFilter.java)
 
 4)周日作业(可选):实现路由
 
-[HttpInboundClient](src/main/java/io/github/jiarus/server/router/RandomHttpEndpointRouter.java)
+[HttpInboundClient](nio02/src/main/java/io/github/jiarus/server/router/RandomHttpEndpointRouter.java)
+
+#[课堂笔记](nio02/src/main/resource/课堂笔记.txt)
