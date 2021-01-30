@@ -1,0 +1,100 @@
+第5课
+一、netty基础
+1. 什么是高性能
+    * 高并发（Concurrent Users）高频应用
+    * 高吞吐（Throughout）QPS/TPS
+    * 低延迟（Latency）,wrk —latency 查看p50 p75 p90 p99 = RRT(request return time 请求响应时间)
+        * 反直觉的例子：延迟低的系统吞吐量不一定高，延迟高的系统吞吐量不一定低。（水库的例子，距离远即延迟高，但水压相同，与距离近的吞吐量是一样的）
+    * 容量
+    - 高性能的另一面，副作用：
+        - 复杂度高
+        - 建设与维护成本高
+        - 故障BUG带来的破坏性高
+    - 应对策略（混沌工程）
+        - 容量
+        - 爆炸半径
+        - 工程方面积累与改进
+2. Netty如实现高性能（抽象程度：NIO>Netty>Reactor模型）
+    * 特点：高性能的网络框架：异步、事件驱动、基于NIO
+    * 适用于：客户端、服务端、TCP/UDP
+    * NIO的三种reactor模型实现
+        * Reactor单线程模型
+        * 非主从Reactor多线程模型，只有一个线程（或一组线程）负责接入请求/处理IO
+        * 主从Reactor多线程模型，两个线程(或两组线程)分别处理，主：负责接入请求，从负责处理IO
+
+￼
+    * 抽象结构
+￼
+    * Netty启动流程和处理流程
+        - 创建主从EventLoopGroup
+        - ServerBootstrap绑定group和端口，返回Channel对象（读写系统的管道）
+    * 什么是EventLoop
+        - 可以看作是个可以工作的单元，只包含一个线程
+        - 包含事件的接收、分发、循环机制
+        - 当有可用的Channel绑定到EventLoop，SocketChannel里有数据可操作时，EventLoop会取出消息，使用绑定的handler链处理，接着继续循环
+    * 事件与接口
+        * 入站/出站事件
+            * 通道激活和停用
+            * 读操作
+            * 异常事件
+            * 用户事件
+            * 打开连接
+            * 关闭连接
+            * 写入数据
+            * 刷新数据
+        * 事件处理程序接口
+            * ChannelHandler (base interface)
+            * ChannelOutboundHandler (extend ChannelHandler)
+            * ChannelInboundHandler  (extend ChannelHandler)
+        * 适配器（extends ChannelHandlerAdapter implements ChannelInboundHandler）
+            * ChannelInboundHandlerAdapter
+            * ChannelOutboundHandlerAdapter
+    * channel通道的类型
+        * NioSocketChannel, 代表异步的客户端 TCP Socket 连接.
+        * NioServerSocketChannel, 异步的服务器端 TCP Socket 连接.
+        * NioDatagramChannel, 异步的 UDP 连接
+        * NioSctpChannel, 异步的客户端 Sctp 连接.
+        * NioSctpServerChannel, 异步的 Sctp 服务器端连接.
+        * OioSocketChannel, 同步的客户端 TCP Socket 连接.
+        * OioServerSocketChannel, 同步的服务器端 TCP Socket 连接.
+        * OioDatagramChannel, 同步的 UDP 连接
+        * OioSctpChannel, 同步的 Sctp 服务器端连接.
+        * OioSctpServerChannel, 同步的客户端 TCP Socket 连接.
+
+二、netty优化与使用
+1. Netty网络程序优化
+    * Nagle与TCP_NODELAY（对小包数据优化，打包发送，平衡延迟与吞吐的关系）
+        * 缓冲区满
+        * 达到超时
+    * TCP 3次握手(SYN=问，ACK=答)
+        * 客户端：SYN=1(你在不在) ->
+        * 服务器：ACK=1,SYN=1(我在，你在不在)->
+        * 客户端：ACK=1(我在)
+    * 4次挥手
+        * 客户端：FIN=1（分手吧）
+        * 服务端：ACK=1（好）
+        * 服务端：FIN=1，ACK=1（你确认分手吗）
+        * 客户端：ACK=1（确认）
+    * Netty性能优化
+        * 不要阻塞 EventLoop
+        * 系统参数优化（ulimit -a /proc/sys/net/ipv4/tcp_fin_timeout（linux）, TcpTimedWaitDelay (windows)）
+        * 缓冲区优化
+            * SO_RCVBUF
+            * SO_SNDBUF
+            * SO_BACKLOG tcp内部队列大小，（建立连接）和（可提供服务的连接）总数，
+            * REUSEXXX
+        * 心跳周期优化 心跳机制与短线重连
+        * 内存与 ByteBuffer 优化
+            *  DirectBuffer与HeapBuffer(netty可以使用堆外也可以使用堆内，可以设置)
+        * 其他优化
+            -  ioRatio
+                - netty里io线程与业务线程比例
+            -  Watermark
+            -  TrafficShaping
+                - 流量控制，队列缓冲
+2. 典型应用：API网关
+    * 流量网关(F5/NGINX/OpenResty(nginx+lua)/kong)
+    * 业务网关(zuul<bio>/zuul2<nio>/springcloud gateway/soul)
+3. 自己动手实现API网关
+    *
+4. 总结回顾与作业实践

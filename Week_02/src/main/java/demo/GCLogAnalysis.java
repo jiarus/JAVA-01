@@ -1,5 +1,7 @@
 package demo;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
@@ -7,6 +9,8 @@ import java.util.concurrent.atomic.LongAdder;
 演示GC日志生成与解读
 */
 public class GCLogAnalysis {
+    private Integer b = 1;
+    private List<Integer> a = new ArrayList<>();
     private static Random random = new Random();
     public static void main(String[] args) {
         // 当前毫秒时间戳
