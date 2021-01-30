@@ -16,7 +16,7 @@
 
 2)周三作业(可选):使用netty实现后端http访问(代替上一步骤); 
 
-[HttpInboundClient](nio02/src/main/java/io/github/jiarus/client/inbound/HttpInboundHandler.java)
+[HttpInboundClient](nio02/src/main/java/io/github/jiarus/client/inbound/HttpInboundClient.java)
 
 3)周日作业:(必做)实现过滤器 ~
 

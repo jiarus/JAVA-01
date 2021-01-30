@@ -96,5 +96,4 @@
     * 流量网关(F5/NGINX/OpenResty(nginx+lua)/kong)
     * 业务网关(zuul<bio>/zuul2<nio>/springcloud gateway/soul)
 3. 自己动手实现API网关
-    *
 4. 总结回顾与作业实践
