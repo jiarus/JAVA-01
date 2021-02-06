@@ -1,0 +1,76 @@
+第7课
+1.Java并发包（JUC）
+- JDK核心包（rt.jar下面Runtime）：
+    - java.lang.*
+        * 最基础，Integer/String
+    - java.io.*
+        * IO读写，文件操作
+    - java.util.*
+        * 工具类，集合/日期
+        * java.util.concurrency
+            * 锁（由synchronized/wait发展而来）
+                * Locks : Lock, Condition, ReentrantLock, ReadWriteLock,LockSupport
+                * synchronized（隐式的锁）的问题：
+                    1. 同步块阻塞无法中断；
+                    2. 同步块阻塞无法控制超时；
+                    3. 同步块无法异步处理锁；
+                    4. 同步块无法根据条件灵活地加锁解锁；
+                * Lock
+                    1. 方式灵活可控
+                    2. 性能开销小
+                    3. Juc锁工具包
+            * 原子类(sum++多线程安全)
+                * Atomic : AtomicInteger, AtomicLong, LongAdder
+                * 原理：
+                    1. 值由volatile修饰，每次重主存读取防止读到缓存
+                    2. 无锁技术，compare-and-swap,即CAS，由JVM使用乐观锁机制实现，也叫自旋。
+                    3. 存在aba的问题，即先被另一个线程加一再减一，自旋不会发现有问题，结果还是正确的。但这属于伪命题，一般没有影响，只是版本不同。AtomicStampedReference可以比较版本。
+                * 为什么使用无锁？
+                    1. 当CPU压力不大的时候，自旋次数少，效率比加锁解锁快
+                    2. 压力非常大，多次自旋会消耗很多资源，大部分时间效率比加锁高
+                * 如何进一步优化无锁？
+                    * LongAdder优化了AtomicLong
+                    * 原理：使用多路归并的思想，每个线程对应一个Cell，最后再合并所有的Cell。快排、G1GC、ConcurrentHashMap也使用了这种思想。
+            * 线程池（new Thread()管理）
+                * Executer : Future, Callable, Executor, ExecutorService
+            * 工具类（线程间协作信号量）
+                * Tools : CountDownLatch, CyclicBarrier, Semaphore
+            * 集合类（线程安全集合类）
+                * Collections : CopyOnWriteArrayList, ConcurrentMap
+    - java.math.*
+        * 数学计算，BigInteger
+    - java.net.*
+        * 网络编程，Socket
+    - java.rmi.*
+        * Java内置的远程调用
+    - java.sql.*
+        * JDBC操作数据库
+    - javax.*
+        * java扩展api
+    - sun.*
+        * sun的JDK实现包
+2.到底什么是锁？
+* ReentrantLock
+* ReentrantReadWriteLock
+    - 读写锁分离lock.readLock() lock.writeLock() 俩个子锁
+    - 适合读多写少的场景
+    - 应用？
+* LockSupport（spring里大量使用了）
+最佳实践(Doug Lee)：
+1.永远只在更新对象的成员变量时加锁；（写加锁）
+2.永远只在访问可变的成员变量时加锁；（finnal 修饰不加锁）
+3.永远不再调用其他对象的方法时加锁；（方法不加锁）
+总结：最小范围加锁，细分锁粒度
+
+3.并发原子类*
+4.并发集合
+* CopyOnWriteArrayList/CopyOnWriteArraySet
+    * 顾名思义写时复制，只有在修改集合时候才将结果复制过去，然后将原容器的引用指向新容器。这是一种延时懒惰策略，也是一种读写分离的思想。
+5.并发工具类*
+* AQS
+    * AbstractQueuedSynchronized，即队列同步器，是构建锁或其他同步组建的基础（如Semaphore、CountDownLatch、ReentrantLock,ReentrantReadWriteLock）,是JUC并发包中的核心基础组件，抽象了竞争的资源和线程的队列。
+    * 两种资源共享方式：独占/共享，子类实现公平/非公平
+* Semaphore
+* CountDownLatch
+* CyclicBarrier
+￼
