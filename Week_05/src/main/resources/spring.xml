@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="studentA" class="io.github.jiarus.demo.bean.Student">
+        <property name="id" value="1"/>
+        <property name="name" value="jiarus"/>
+        <property name="age" value="18"/>
+    </bean>
+    <bean id="studentB" class="io.github.jiarus.demo.bean.Student">
+        <constructor-arg index="0" value="2"/>
+        <constructor-arg index="1" value="fever"/>
+        <constructor-arg index="2" value="19"/>
+    </bean>
+
+</beans>
