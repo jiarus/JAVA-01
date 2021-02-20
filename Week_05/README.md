@@ -21,5 +21,5 @@
 [DemoApplicationTests#testJDBCHikari](src/test/java/io/github/jiarus/demo/DemoApplicationTests.java)
 
  
- #### [课堂笔记](src/main/resource/笔记.txt)
+ #### [课堂笔记](src/main/resources/biji.txt)
  

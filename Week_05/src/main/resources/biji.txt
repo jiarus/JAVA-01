@@ -1,0 +1,54 @@
+第9课
+1. Spring的技术发展
+    * 2002年 Rod Johnson写了Expert One-on-One J2EE设计和开发的书，04年发布Spring1.0版本。替代了依赖J2EE容器的编码方式。目前发布到5.x版本。
+    * spring fu / spring roo （孵化中）
+2. Spring框架设计*
+    * Spring也是个容器，取代了以前的EJB容器。
+    * Spring六大模块
+        * Core:Bean（23个设计模式）/Context（可以理解为Spring容器）/AOP
+        * Testing:Mock/TestContext
+        * DataAccess:Tx/JDBC/ORM
+        * Spring MVC/WebFlux (针对web)
+        * Integration: Remoting/JMS/WebService （和其他组件的集成技术）
+        * Languages : Kotlin/Groovy (和其他语言的集成)
+3. Spring AOP详解*
+4. Spring Bean 核心原理*
+        * Bean
+5. Spring XML配置原理*
+6. Spring Messaging等技术
+    * 分布式两大基石(同步转异步)，JMS(java消息规范类似JDBC规范)
+        * RPC
+        * MQ
+
+
+
+第10课
+1. 从Spring到SpringBoot
+    * 配置的发展方向
+        * XML(全局配置)
+        * 注解@Compent（类）
+        * 配置类@Configuration+@Bean（方法）
+    * 序列化接口Serializable，实际是对实现类打上可序列化的标记。有了注解之后对类加上注解就可以标记。可以控制在编译或者运行期起作用。
+    * 注解出现的时间比较晚，10年前左右，jdk5出现，jdk6大规模使用，而C#20年前已经开始使用
+    * SpringBoot原则约定大于/优于配置（默认搭配好一些组件，简化使用 ）
+    * 总结的说，SpringBoot是Spring的一套快速配置的脚手架，关注于自动配置，配置驱动。
+2. SpringBoot核心原理
+    * 自动化配置：简化配置，基于Configuration,EnableXXX,Condition
+    * Spring-boot-starter:脚手架核心，整合了第三方类库，协同工具
+3. *Spring Boot Starter 详解*
+    - 自动装配流程：
+    * Application中@SpringBootApplication包含了EnableAutoConfiguration，而后者@Import(AutoConfigurationImportSelector.class)，之后会读取META-INF下的spring.factories中包含的可自动装配的类名，大概120多个
+    * 然后根据条件自动装配，并在classpath下寻找依赖的jar包（这前两步是自动装配默认支持的starter）
+    * 如果是自定义的starter，有两种方式加载jar,1、创建spring.factories 2、创建自定义EnableXXX注解+@Import(XXXConfiguration.class)
+    * 读取jar包中的spring.factories中EnableAutoConfiguration=xxx可以知道通过哪些类拉起该模块，如feign的FeignAutoConfiguration
+    * meta-data.json提供yml文件的提示，默认值等，项目运行时读取到properties里，为上一步的类提供参数
+    * 将创建好的类放到spring容器中
+    - 自定义starter
+4. DBC 与数据库连接池*
+    * 数据库驱动都是基于JDBC实现
+    * 自己实现一个数据库驱动
+5. ORM-Hibernate/MyBatis*
+    * Object-Relational-Mapping
+6. Spring 集成 ORM/JPA*
+7. Spring Boot 集成 ORM/JPA
+8. 第 10 课总结回顾与作业实践
