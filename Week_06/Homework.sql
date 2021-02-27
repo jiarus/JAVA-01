@@ -8,6 +8,8 @@ CREATE TABLE `business-core`.`t_user` (
   `update_time` DATETIME NULL,
   `status` VARCHAR(45) NULL DEFAULT '100' COMMENT '100 正常 200封禁',
   PRIMARY KEY (`id`));
+
+
 -- 商品表
 CREATE TABLE `business-core`.`t_commodity` (
   `id` INT NOT NULL COMMENT '商品id',
@@ -20,6 +22,8 @@ CREATE TABLE `business-core`.`t_commodity` (
   `update_time` DATETIME NULL,
   `status` VARCHAR(45) NOT NULL DEFAULT '100' COMMENT '100 正常 200 下架 300 删除',
   PRIMARY KEY (`id`));
+
+
 -- 订单表
 CREATE TABLE `business-core`.`t_order` (
   `id` INT NOT NULL,
@@ -32,6 +36,8 @@ CREATE TABLE `business-core`.`t_order` (
   `delivery_status` VARCHAR(45) NOT NULL DEFAULT '100' COMMENT '配送状态：100 待配送 200 配送中 300 配送完成',
   `delivery_time` DATETIME NULL COMMENT '配送时间',
   PRIMARY KEY (`id`));
+
+
 -- 订单商品关联表
 CREATE TABLE `business-core`.`t_order_co_rel` (
   `id` INT NOT NULL,
