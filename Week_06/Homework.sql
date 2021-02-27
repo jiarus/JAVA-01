@@ -42,7 +42,7 @@ CREATE TABLE `business-core`.`t_order` (
 CREATE TABLE `business-core`.`t_order_co_rel` (
   `id` INT NOT NULL,
   `order_id` INT NOT NULL COMMENT '订单id',
-  `co_id` INT NOT NULL COMMENT '商品idd',
+  `co_id` INT NOT NULL COMMENT '商品id',
   PRIMARY KEY (`id`));
 
 
